@@ -1,0 +1,12 @@
+global:
+  scrap_interval: 5s
+
+scrape_config:
+  - job_name: 'Elanor'
+    metrics_path: ['actuator/prometheus']
+    static_configs:
+      - targets: ['elanor:8080']
+
+  - job_name: 'Prometheus'
+    static_configs:
+      - targets: ['localhost:9090']

@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: elanor
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+  metrics:
+    tags:
+      application: elanor
+
+elanor:
+  simulation:
+    interval-ms: 5000
+    storage-id: TOMATO-STORE-001
+    farm-id: TOMATO-FARM-001
+    initial-temperature: 23.0
+    initial-humidity: 0.75
+    initial-luminosity: 100.0
+    initial-co2: 450.0

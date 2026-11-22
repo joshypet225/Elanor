@@ -1,0 +1,16 @@
+targets/
+pom.xml
+pom.xml.*
+release.*
+mvnw
+.mvn/
+*.mvnw.*
+*.class
+*.log
+*.jar
+logs/
+.env
+.terraform/
+*.tfstate.*
+*.tfvars
+.terraform.*
