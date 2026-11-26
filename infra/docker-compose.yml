@@ -1,46 +1,47 @@
+
 services:
-        elanor:
-          image: nayborhoodev/elanor:latest
-          container_name: elanor
-          ports:
-            - "8080:8080"
-          environment:
-            - JAVA_TOOL_OPTIONS=-Xmx1536m
-          restart: unless-stopped
-          networks:
-            - elanor-network
+  elanor:
+    image: nayborhoodev/elanor:latest
+    container_name: elanor
+    ports:
+      - "8080:8080"
+    environment:
+      - JAVA_TOOL_OPTIONS=-Xmx1536m
+    restart: unless-stopped
+    networks:
+      - elanor-network
 
-        prometheus:
-          image: prom/prometheus:latest
-          container_name: prometheus
-          ports:
-            - "9090:9090"
-          volumes:
-            - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-            - /prometheus-data:/prometheus
-          command:
-            - "--storage.tsdb.retention.time=15d"
-          restart: unless-stopped
-          networks:
-            - elanor-network
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - "--storage.tsdb.retention.time=15d"
+    restart: unless-stopped
+    networks:
+      - elanor-network
 
-        grafana:
-          image: grafana/grafana:latest
-          container_name: grafana
-          ports:
-            - "3000:3000"
-          volumes:
-            - grafana_data:/grafana
-            - ./grafana/provisioning:/etc/grafana/provisioning
-            - ./grafana/provisioning/dashboards:/var/lib/grafana/dashboards
-          environment:
-            - GF_SECURITY_ADMIN_PASSWORD=admin
-            - GF_SECURITY_ADMIN_USER=ADMIN
-          restart: unless-stopped
-          depends_on:
-            - prometheus
-          networks:
-            - elanor-network
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    networks:
+      - elanor-network
 
 networks:
   elanor-network:

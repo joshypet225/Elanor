@@ -1,12 +1,16 @@
+
 global:
-  scrap_interval: 5s
+  scrape_interval: 60s
+  scrape_timeout: 10s
 
-scrape_config:
-  - job_name: 'Elanor'
-    metrics_path: ['actuator/prometheus']
+scrape_configs:
+  - job_name: "Elanor"
+    scrape_interval: 5s
+    scrape_timeout: 4s
+    metrics_path: "/actuator/prometheus"
     static_configs:
-      - targets: ['elanor:8080']
+      - targets: ["elanor:8080"]
 
-  - job_name: 'Prometheus'
+  - job_name: "Prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["prometheus:9090"]
