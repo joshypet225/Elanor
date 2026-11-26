@@ -1,0 +1,124 @@
+
+groups:
+  # 1. Environmental conditions inside the storage facility
+  - name: agrosense-environment-alerts
+    rules:
+      - alert: StorageTemperatureHigh
+        expr: agrosense_storage_temperature_celsius > 15
+        for: 30s
+        labels:
+          severity: warning
+          category: environment
+        annotations:
+          summary: "Storage temperature is elevated"
+          description: "Storage temperature has exceeded 15°C for 30 seconds."
+
+      - alert: StorageHumidityHigh
+        expr: agrosense_storage_relative_humidity_ratio > 0.90
+        for: 30s
+        labels:
+          severity: warning
+          category: environment
+        annotations:
+          summary: "Storage humidity is elevated"
+          description: "Relative humidity has exceeded 90% for 30 seconds."
+
+      - alert: StorageCO2High
+        expr: agrosense_storage_co2_ppm > 1000
+        for: 30s
+        labels:
+          severity: warning
+          category: environment
+        annotations:
+          summary: "CO2 concentration is elevated"
+          description: "CO2 concentration has exceeded 1000 ppm for 30 seconds."
+
+      - alert: StorageLuminosityHigh
+        expr: agrosense_storage_luminosity_lux > 150
+        for: 30s
+        labels:
+          severity: warning
+          category: environment
+        annotations:
+          summary: "Storage luminosity is elevated"
+          description: "Light intensity has exceeded 150 lux for 30 seconds."
+
+  # 2. Telemetry quality and availability
+  - name: agrosense-telemetry-alerts
+    rules:
+      - alert: InvalidTelemetryDetected
+        expr: increase(agrosense_telemetry_invalid_total[5m]) > 0
+        labels:
+          severity: warning
+          category: telemetry
+        annotations:
+          summary: "Invalid telemetry detected"
+          description: "One or more sensor readings were rejected in the last 5 minutes."
+
+      - alert: NoTelemetryReceived
+        expr: |
+          (
+            sum(increase(agrosense_telemetry_readings_total[2m])) == 0
+          )
+          or
+          absent_over_time(agrosense_telemetry_readings_total[2m])
+        for: 30s
+        labels:
+          severity: critical
+          category: telemetry
+        annotations:
+          summary: "No telemetry readings received"
+          description: "AgroSense AI has not recorded valid telemetry readings for at least 2 minutes."
+
+  # 3. Simulated equipment and facility failures
+  - name: agrosense-scenario-alerts
+    rules:
+      - alert: CoolingFailureDetected
+        expr: agrosense_simulation_scenario{scenario="COOLING_FAILURE"} == 1
+        labels:
+          severity: critical
+          category: equipment
+        annotations:
+          summary: "Cooling system failure simulated"
+          description: "The simulation indicates that the facility cooling system is not operational."
+
+      - alert: VentilationFailureDetected
+        expr: agrosense_simulation_scenario{scenario="VENTILATION_FAILURE"} == 1
+        labels:
+          severity: critical
+          category: equipment
+        annotations:
+          summary: "Ventilation system failure simulated"
+          description: "The simulation indicates that facility ventilation is not operational."
+
+      - alert: PowerOutageDetected
+        expr: agrosense_simulation_scenario{scenario="POWER_OUTAGE"} == 1
+        labels:
+          severity: critical
+          category: equipment
+        annotations:
+          summary: "Facility power outage simulated"
+          description: "The simulation indicates that facility power is unavailable."
+
+      - alert: ExcessiveLightingDetected
+        expr: agrosense_simulation_scenario{scenario="EXCESSIVE_LIGHTING"} == 1
+        labels:
+          severity: warning
+          category: equipment
+        annotations:
+          summary: "Excessive lighting scenario active"
+          description: "The simulation indicates that excessive lighting has been activated."
+
+  # 4. Application and infrastructure availability
+  - name: agrosense-infrastructure-alerts
+    rules:
+      - alert: ElanorApplicationDown
+        expr: up{job="Elanor"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          category: infrastructure
+        annotations:
+          summary: "AgroSense AI application is unavailable"
+          description: "Prometheus cannot scrape the Elanor application."
+
