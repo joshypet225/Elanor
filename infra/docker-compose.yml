@@ -17,7 +17,7 @@ services:
       - "9090:9090"
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - ./prometheus/rules:/etc/prometheus/rules
+      - ./prometheus/rules/alerts.yml:/etc/prometheus/rules/alerts.yml:ro
       - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -36,6 +36,7 @@ services:
       - grafana_data:/var/lib/grafana
       - ./grafana/provisioning:/etc/grafana/provisioning:ro
       - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
+      
     environment:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER}
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD}
@@ -53,6 +54,8 @@ services:
     command:
       - "--config.file=/etc/alertmanager/config.yml"
       - "--storage.path=/alertmanager"
+    secrets:
+      - gmail_app_password
     ports:
       - "9093:9093"
     networks:
@@ -66,3 +69,9 @@ networks:
 volumes:
   prometheus_data:
   grafana_data:
+  alertmanager_data:
+
+secrets:
+  gmail_app_password:
+    file: ./secrets/gmail_app_password.txt
+

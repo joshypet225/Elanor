@@ -1,18 +1,38 @@
+
 global:
-  resolve_timeout: 5m
+  smtp_smarthost: "smtp.gmail.com:587"
+  smtp_from: "AgroSense AI <joshypet225@gmail.com>"
+  smtp_auth_username: "joshypet225@gmail.com"
+  smtp_auth_password_file: "/run/secrets/gmail_app_password"
+  smtp_require_tls: true
 
 route:
-  group_by: ["alertname"]
+  receiver: agrosense-email
+  group_by:
+    - alertname
+    - severity
   group_wait: 10s
-  group_interval: 10s
-  repeat_interval: 1h
-  receiver: "email-notifications"
+  group_interval: 5m
+  repeat_interval: 4h
+
+  routes:
+    - matchers:
+        - severity="critical"
+      receiver: agrosense-email
+      group_wait: 0s
+      repeat_interval: 1h
 
 receivers:
-  - name: "email-notifications"
+  - name: agrosense-email
     email_configs:
-      - to: ${email}
-        from: "alertmanager@example.com"
-        smarthost: smtp.example.com:587
-        auth_username: ${Username}
-        auth_password: ${Password}
+      - to: "joshypet225@gmail.com"
+        send_resolved: true
+        headers:
+          subject: '[AgroSense {{ .Status | toUpper }}] {{ .CommonLabels.alertname }}'
+        html: |
+          <h2>AgroSense AI Alert</h2>
+          <p><strong>Status:</strong> {{ .Status | toUpper }}</p>
+          <p><strong>Alert:</strong> {{ .CommonLabels.alertname }}</p>
+          <p><strong>Severity:</strong> {{ .CommonLabels.severity }}</p>
+          <p><strong>Summary:</strong> {{ .CommonAnnotations.summary }}</p>
+          <p><strong>Description:</strong> {{ .CommonAnnotations.description }}</p>

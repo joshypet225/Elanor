@@ -15,3 +15,5 @@ logs/
 *.tfstate.*
 *.tfvars
 .terraform.*
+.env
+secrets/
